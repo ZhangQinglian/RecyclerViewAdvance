@@ -1,2 +1,2 @@
 # RecyclerViewAdvance
-for more info visit [wiki](https://github.com/ZhangQinglian/RecyclerViewAdvance/wiki)
+for more info :[wiki](https://github.com/ZhangQinglian/RecyclerViewAdvance/wiki)
