@@ -1,2 +1,2 @@
 # RecyclerViewAdvance
-RecyclerView全面解析
+for more info visit [wiki](https://github.com/ZhangQinglian/RecyclerViewAdvance/wiki)
