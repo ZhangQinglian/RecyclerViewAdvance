@@ -1,7 +1,12 @@
 package com.zqlite.android.recyclerviewadvance;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.media.Image;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -9,6 +14,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int ADD_DATA_DURATION = 2000;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,17 +52,28 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
         recyclerView.setItemAnimator(itemAnimator);
 
+        final MyItemDecoration myItemDecoration = new MyItemDecoration();
+        recyclerView.addItemDecoration(myItemDecoration);
+
         final MyAdapter adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);
 
-        handler.postDelayed(new Runnable() {
+
+        FloatingActionButton addDataBtn = (FloatingActionButton) findViewById(R.id.add_data_button);
+        addDataBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
+            public void onClick(View v) {
                 adapter.addData();
-                handler.postDelayed(this, ADD_DATA_DURATION);
-                layoutManager.scrollToPosition(adapter.getSize());
             }
-        },ADD_DATA_DURATION);
+        });
+
+        FloatingActionButton subtractDataBtn = (FloatingActionButton) findViewById(R.id.subtract_data_button);
+        subtractDataBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adapter.subtractData();
+            }
+        });
     }
 
     private class MyAdapter extends RecyclerView.Adapter{
@@ -83,6 +101,16 @@ public class MainActivity extends AppCompatActivity {
             Random random = new Random();
             datas.add(imageUrlArray[random.nextInt(imageUrlArray.length)]);
             notifyItemInserted(datas.size());
+        }
+
+        public void subtractData(){
+            if(datas.size() <1){
+                return ;
+            }
+            Random random = new Random();
+            int removeIndex = random.nextInt(datas.size());
+            datas.remove(removeIndex);
+            notifyItemRemoved(removeIndex);
         }
 
         public int getSize(){
@@ -126,6 +154,48 @@ public class MainActivity extends AppCompatActivity {
             public MyHolder(View itemView) {
                 super(itemView);
                 imageView = (ImageView) ((CardView)itemView).getChildAt(0);
+            }
+        }
+    }
+
+    private class MyItemDecoration extends RecyclerView.ItemDecoration{
+
+        Paint paint = new Paint();
+
+        public MyItemDecoration(){
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setFlags(Paint.ANTI_ALIAS_FLAG);
+            paint.setColor(Color.BLUE);
+            paint.setStrokeWidth(10);
+        }
+        @Override
+        public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+
+        }
+
+        @Override
+        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+            for(int i = 0 ; i<parent.getChildCount();i++){
+                if( (i-1)%3 == 0 ){
+                    View child = parent.getChildAt(i);
+                    RecyclerView.LayoutParams rLP = (RecyclerView.LayoutParams) child.getLayoutParams();
+                    int left = child.getLeft() ;
+                    int top = child.getTop();
+                    int right = child.getRight();
+                    int bottom = child.getBottom() ;
+                    c.drawRect(left,top,right,bottom,paint);
+                }
+            }
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            int position = parent.getChildAdapterPosition(view);
+            if( (position + 1)%3==0 ){
+                outRect.set(0,0,-20,0);
+            }
+            if(position % 3 == 0){
+                outRect.set(-20,0,0,0);
             }
         }
     }
